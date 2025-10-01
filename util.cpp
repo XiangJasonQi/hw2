@@ -15,17 +15,38 @@ std::string convToLower(std::string src)
     to a set of words based on the criteria given in the assignment **/
 std::set<std::string> parseStringToWords(string rawWords)
 {
+    std::set<std::string> keywords;
+    std::stringstream ss(rawWords);
+    std::string word;
 
+    while(ss >> word){
+        int count = 0;
+        string temp_keyword;
+        for(size_t i = 0; i < word.size(); i++){
+            if(word[i] <= 'z' && word[i] >= 'a' || word[i] <= 'Z' && word[i] >= 'A'){
+                temp_keyword.push_back(word[i]);
+                count++;
+            } else{
+                if(count >= 2){
+                    keywords.insert(temp_keyword);
+                }
+                temp_keyword.clear();
+                count = 0;
+            }
+        }
 
+        //check if the last word of each input is a key word. 
+        if(count >= 2){
+            keywords.insert(temp_keyword);
+        }
 
+    }
 
-
-
-
-
-
-
+    return keywords;
 }
+
+
+
 
 /**************************************************
  * COMPLETED - You may use the following functions
