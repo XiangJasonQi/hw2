@@ -6,6 +6,7 @@
 
 #include "product.h"
 #include "clothing.h"
+#include "util.h"
 
 using namespace std;
 
@@ -36,12 +37,18 @@ std::set<std::string> Clothing::keywords() const{
             count++;
         } else{
             if(count >= 2){
-                keyword.insert(temp_keyword);
+                keyword.insert(convToLower(temp_keyword));
             }
             temp_keyword.clear();
             count = 0;
         }
     }
+
+    if(count >= 2){
+        keyword.insert(convToLower(temp_keyword));
+    }
+    temp_keyword.clear();
+    count = 0;
 
     //check name
     for(size_t i = 0; i < name_.size(); i++){
@@ -50,7 +57,7 @@ std::set<std::string> Clothing::keywords() const{
             count++;
         } else{
             if(count >= 2){
-                keyword.insert(temp_keyword);
+                keyword.insert(convToLower(temp_keyword));
             }
             temp_keyword.clear();
             count = 0;
@@ -59,7 +66,7 @@ std::set<std::string> Clothing::keywords() const{
 
     //check if the last word of each input is a key word. 
     if(count >= 2){
-        keyword.insert(temp_keyword);
+        keyword.insert(convToLower(temp_keyword));
     }
 
     return keyword;

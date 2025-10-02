@@ -10,6 +10,23 @@
 
 using namespace std;
 
+mydatastore::~mydatastore() 
+{
+    while(!user_store_.empty()){
+        vector<user_cart<User*, vector<Product*>>>::iterator it = user_store_.begin();
+        delete it->User;
+        user_store_.erase(it);
+    }
+
+    while(!product_store_.empty()){
+        map<set<string>, Product*>::iterator it = product_store_.begin();
+        delete it->second; 
+        product_store_.erase(it);
+    }
+
+}
+
+
 void mydatastore::addProduct(Product *p)
 {
     set<string> keyword = p->keywords();
@@ -18,7 +35,7 @@ void mydatastore::addProduct(Product *p)
 
 void mydatastore::addUser(User *u)
 {
-    user_cart<User*, std::set<Product*>> new_user = {u, {}};
+    user_cart<User*, std::vector<Product*>> new_user = {u, {}};
     user_store_.push_back(new_user);
 }
 
@@ -55,16 +72,22 @@ std::vector<Product *> mydatastore::search(std::vector<std::string> &terms, int 
 
 void mydatastore::dump(std::ostream &ofile)
 {
+    ofile << "<products>" << endl;
     map<set<string>, Product*>::iterator it; 
     for(it = product_store_.begin(); it != product_store_.end(); ++it){
         Product* current_product = it->second;
         current_product->dump(ofile);
     }
-    vector<user_cart<User*, set<Product*>>>::iterator user_it;
+
+    ofile << "</products>" << endl;
+    ofile << "<users>" << endl;
+    vector<user_cart<User*, vector<Product*>>>::iterator user_it;
     for(user_it = user_store_.begin(); user_it != user_store_.end(); ++user_it){
         User* current_user = user_it->User;
         current_user->dump(ofile);
     }
+
+    ofile << "</users>" << endl;
 
 }
 
@@ -90,9 +113,9 @@ void mydatastore::view_cart(string &username, vector<Product*> &hits)
         return;
     }
 
-    user_cart<User*, set<Product*>> curr_user = user_store_[user_index];
+    user_cart<User*, vector<Product*>> curr_user = user_store_[user_index];
 
-    set<Product*>::iterator it;
+    vector<Product*>::iterator it;
 
     for(it = curr_user.Cart.begin(); it != curr_user.Cart.end(); ++it){
         Product* curr_product = *it;
@@ -110,11 +133,11 @@ void mydatastore::buy_cart(string &username)
         return;
     }
 
-    user_cart<User*, set<Product*>> curr_user = user_store_[user_index];
+    user_cart<User*, vector<Product*>>& curr_user = user_store_[user_index];
 
-    set<Product*>::iterator it;
+    vector<Product*>::iterator it;
 
-    set<Product*> leftover_cart;
+    vector<Product*> leftover_cart;
 
     for(it = curr_user.Cart.begin(); it != curr_user.Cart.end(); ++it){
         Product* curr_product = *it;
@@ -122,7 +145,7 @@ void mydatastore::buy_cart(string &username)
             curr_user.User->deductAmount(curr_product->getPrice());
             curr_product->subtractQty(1);
         } else {
-            leftover_cart.insert(curr_product); //does this lead to memory leak? 
+            leftover_cart.push_back(curr_product); //does this lead to memory leak? 
         }
 
     }
@@ -134,13 +157,13 @@ void mydatastore::buy_cart(string &username)
 void mydatastore::add_cart(string &username, vector<Product*> &hit_product, int hit_index)
 {
     int user_index = check_user(username);
-    if(user_index == -1){
-        cout << "Invalid username" << endl;
+    if(user_index == -1 || hit_index < 1){
+        cout << "Invalid request" << endl;
         return;
     }
 
-    user_cart<User*, set<Product*>> curr_user = user_store_[user_index];
+    user_cart<User*, vector<Product*>>& curr_user = user_store_[user_index];
 
-    curr_user.Cart.insert(hit_product[hit_index]);
+    curr_user.Cart.push_back(hit_product[hit_index-1]);
 
 }

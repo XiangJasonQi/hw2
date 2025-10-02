@@ -6,12 +6,13 @@
 
 #include "product.h"
 #include "movie.h"
+#include "util.h"
 
 using namespace std;
 
 
 
-Movie::Movie(const std::string genre, const int rating, const std::string category, const std::string name, double price, int qty):
+Movie::Movie(const std::string genre, const std::string rating, const std::string category, const std::string name, double price, int qty):
     Product(category, name, price, qty), 
     genre_(genre),
     rating_(rating)
@@ -36,12 +37,19 @@ std::set<std::string> Movie::keywords() const{
             count++;
         } else{
             if(count >= 2){
-                keyword.insert(temp_keyword);
+                keyword.insert(convToLower(temp_keyword));
             }
             temp_keyword.clear();
             count = 0;
         }
     }
+
+    if(count >= 2){
+        keyword.insert(convToLower(temp_keyword));
+    }
+
+    temp_keyword.clear();
+    count = 0;
 
     //check name
     for(size_t i = 0; i < name_.size(); i++){
@@ -50,7 +58,7 @@ std::set<std::string> Movie::keywords() const{
             count++;
         } else{
             if(count >= 2){
-                keyword.insert(temp_keyword);
+                keyword.insert(convToLower(temp_keyword));
             }
             temp_keyword.clear();
             count = 0;
@@ -59,7 +67,7 @@ std::set<std::string> Movie::keywords() const{
 
     //check if the last word of each input is a key word. 
     if(count >= 2){
-        keyword.insert(temp_keyword);
+        keyword.insert(convToLower(temp_keyword));
     }
 
     return keyword;

@@ -22,7 +22,7 @@ class mydatastore : public DataStore{
 
 public: 
 
-    ~mydatastore() { }
+    ~mydatastore();
     /**
      * Adds a product to the data store
      */
@@ -70,7 +70,7 @@ public:
 
 private: 
     std::map<std::set<std::string>, Product*> product_store_;
-    std::vector<user_cart<User*, std::set<Product*>>> user_store_; 
+    std::vector<user_cart<User*, std::vector<Product*>>> user_store_; 
 
 };
 
